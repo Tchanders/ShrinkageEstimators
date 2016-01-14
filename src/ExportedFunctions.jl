@@ -27,5 +27,5 @@ function getconditionalmutualinformation(valuesX::Array{Float64,2}, valuesY::Arr
 	entropyXZ = getentropy(valuesX, valuesZ, base, lambda)
 	entropyYZ = getentropy(valuesY, valuesZ, base, lambda)
 	entropyXYZ = getentropy(valuesX, valuesY, valuesZ, base, lambda)
-	return applyconditionalmutualinformationformula(entropyZ, entropyXZ, entropyYZ, entropyXYZ, base)
+	return applyconditionalmutualinformationformula(entropyZ, entropyXZ, entropyYZ, entropyXYZ)
 end
