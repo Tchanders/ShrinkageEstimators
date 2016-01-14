@@ -1,5 +1,8 @@
 module ShrinkageEstimators
 
-# package code goes here
+include("ExportedFunctions.jl")
+include("Discretization.jl")
+include("Shrinkage.jl")
+include("Formulae.jl")
 
 end # module
