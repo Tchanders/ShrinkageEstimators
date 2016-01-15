@@ -1,9 +1,6 @@
 using ShrinkageEstimators
 using Base.Test
 
-# write your own tests here
-@test 1 == 1
-
 d = 1
 n = 10000
 b = sqrt(n) # getfrequencies function uses sqrt(n) bins

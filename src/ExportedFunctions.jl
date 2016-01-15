@@ -1,6 +1,7 @@
 # Exported functions
 
 # TODO:
+# Add tests for the sensibleness of mi and cmi
 # Offer alternative target
 # Look into standardising the documentation
 # Offer alternative discretisation methods
