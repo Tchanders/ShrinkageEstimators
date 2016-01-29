@@ -63,6 +63,7 @@ d is the number of dimensions and n is the number of values.
 [lambda=false] - Int - The shrinkage intensity, between 0 and 1
 inclusive. If omitted, the optimal lambda it will be calculated.
 """
+# NB "mi" stands for mutual information
 function get_shrinkage_mi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, base=2, lambda=false)
 	entropyX = get_shrinkage_entropy(valuesX, base, lambda)
 	entropyY = get_shrinkage_entropy(valuesY, base, lambda)
@@ -92,6 +93,7 @@ number of values.
 [lambda=false] - Int - The shrinkage intensity, between 0 and 1
 inclusive. If omitted, the optimal lambda it will be calculated.
 """
+# NB "cmi" stands for conditional mutual information
 function get_shrinkage_cmi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, base=2, lambda=false)
 	entropyZ = get_shrinkage_entropy(valuesZ, base, lambda)
 	entropyXZ = get_shrinkage_entropy(valuesX, valuesZ, base, lambda)

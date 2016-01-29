@@ -47,7 +47,12 @@ function getbinids(values::Array{Float64,2})
 
 	function adjustvalues(values, numberofbins)
 		min, binwidth = getvalueadjustmentparameters(values, numberofbins)
-		return floor(Int, (values - min) * (1 / binwidth)) + 1
+		# If all the values were 0, they don't need adjusting
+		# For now, test this by testing whether binwidth is 0
+		if binwidth == 0
+			return convert(Array{Int}, values) + 1
+		end
+		return floor(Int, (values - min) * (1 / binwidth)) + 1 # This should be ceil?
 	end
 
 	numberofbins = getnumberofbins(values)
