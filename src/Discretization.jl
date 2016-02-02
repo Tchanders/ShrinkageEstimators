@@ -38,10 +38,12 @@ function getbinids(values::Array{Float64,2})
 		return round(Int, sqrt(size(values)[2]))
 	end
 
+	# TODO: Replace getvalueadjustmentparameters and adjustvalues with Discretizers package
+
 	# This is a separate function because might want to offer different methods in the future
 	function getvalueadjustmentparameters(values, numberofbins)
 		min, max = extrema(values)
-		binwidth = (max - min) / (numberofbins - 1)
+		binwidth = (max - min) / (numberofbins)
 		return min, binwidth
 	end
 
@@ -52,7 +54,10 @@ function getbinids(values::Array{Float64,2})
 		if binwidth == 0
 			return convert(Array{Int}, values) + 1
 		end
-		return floor(Int, (values - min) * (1 / binwidth)) + 1 # This should be ceil?
+		# Eacn bin should contain [lower_edge, upper_edge)
+		ids = floor(Int, (values - min) * (1 / binwidth)) + 1
+		# Except the top bin, which should contain [lower_edge, upper_edge]
+		return reshape([b <= numberofbins ? b : numberofbins for b in ids], (1, length(ids)))
 	end
 
 	numberofbins = getnumberofbins(values)
