@@ -44,7 +44,11 @@ function getbinids(values::Array{Float64,2}, uniformwidth)
 	numberofdimensions, n = size(values)
 	binids = zeros(Int, size(values))
 	for i in 1:numberofdimensions
-		if uniformwidth
+		# If values are all the same, assign them all to bin 1
+		min, max = extrema(values)
+		if min == max
+			binids[i:i, 1:end] += convert(Array{Int}, values) + 1
+		elseif uniformwidth
 			binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(numberofbins), values)), values)
 		else
 			binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformCount(numberofbins), reshape(values, length(values)))), values)
