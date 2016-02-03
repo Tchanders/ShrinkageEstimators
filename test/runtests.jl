@@ -21,12 +21,16 @@ println(get_shrinkage_entropy(arr) - log2(b))
 println("Entropy passed")
 
 # Check change of base works
-@test_approx_eq_eps get_shrinkage_entropy(arr, e) log(b) 0.5
+@test_approx_eq_eps get_shrinkage_entropy(arr, Dict("base" => e)) log(b) 0.5
 println("Entropy with change of base passed")
 
 # Check specifying lambda works
-@test_approx_eq_eps get_shrinkage_entropy(arr, 2, 0) log2(b) 0.5
+@test_approx_eq_eps get_shrinkage_entropy(arr, Dict("lambda" => 0)) log2(b) 0.5
 println("Entropy with with lambda 0 passed")
+
+# Check uniform count discretization works
+@test_approx_eq_eps get_shrinkage_entropy(arr, Dict("uniformwidth" => false)) log2(b) 0.5
+println("Entropy with with uniform count passed")
 
 # Check joint entropy between multiple identical distributions is roughly
 # the same as entropy for one of them

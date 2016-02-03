@@ -8,6 +8,14 @@
 
 export get_shrinkage_entropy, get_shrinkage_mi, get_shrinkage_cmi
 
+# Utility function for setting or overriding default options
+function getoptions(options::Dict)
+	return (
+		haskey(options, "base") ? options["base"] : 2,
+		haskey(options, "lambda") ? options["lambda"] : nothing,
+		haskey(options, "uniformwidth") ? options["uniformwidth"] : true
+	)
+end
 
 """
 Calculates a James-Stein shrinkage estimate for the entropy of a set
@@ -33,16 +41,19 @@ the number of dimensions and n is the number of values.
 [lambda=false] - Int - The shrinkage intensity, between 0 and 1
 inclusive. If omitted, the optimal lambda it will be calculated.
 """
-function get_shrinkage_entropy(valuesX::Array{Float64,2}, base=2, lambda=false)
-	probabilities = getprobabilitiesshrinkage(getfrequencies(valuesX), lambda)
+function get_shrinkage_entropy(valuesX::Array{Float64,2}, options=Dict())
+	base, lambda, uniformwidth = getoptions(options)
+	probabilities = getprobabilitiesshrinkage(getfrequencies(valuesX, uniformwidth), lambda)
 	return applyentropyformula(probabilities, base)
 end
-function get_shrinkage_entropy(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, base=2, lambda=false)
-	jointprobabilities = getprobabilitiesshrinkage(getjointfrequencies(valuesX, valuesY), lambda)
+function get_shrinkage_entropy(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, options=Dict())
+	base, lambda, uniformwidth = getoptions(options)
+	jointprobabilities = getprobabilitiesshrinkage(getjointfrequencies(valuesX, valuesY, uniformwidth), lambda)
 	return applyentropyformula(jointprobabilities, base)
 end
-function get_shrinkage_entropy(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, base=2, lambda=false)
-	jointprobabilities = getprobabilitiesshrinkage(getjointfrequencies(valuesX, valuesY, valuesZ), lambda)
+function get_shrinkage_entropy(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, options=Dict())
+	base, lambda, uniformwidth = getoptions(options)
+	jointprobabilities = getprobabilitiesshrinkage(getjointfrequencies(valuesX, valuesY, valuesZ, uniformwidth), lambda)
 	return applyentropyformula(jointprobabilities, base)
 end
 
@@ -64,10 +75,10 @@ d is the number of dimensions and n is the number of values.
 inclusive. If omitted, the optimal lambda it will be calculated.
 """
 # NB "mi" stands for mutual information
-function get_shrinkage_mi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, base=2, lambda=false)
-	entropyX = get_shrinkage_entropy(valuesX, base, lambda)
-	entropyY = get_shrinkage_entropy(valuesY, base, lambda)
-	entropyXY = get_shrinkage_entropy(valuesX, valuesY, base, lambda)
+function get_shrinkage_mi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, options=Dict())
+	entropyX = get_shrinkage_entropy(valuesX, options)
+	entropyY = get_shrinkage_entropy(valuesY, options)
+	entropyXY = get_shrinkage_entropy(valuesX, valuesY, options)
 	return applymutualinformationformula(entropyX, entropyY, entropyXY)
 end
 
@@ -94,10 +105,10 @@ number of values.
 inclusive. If omitted, the optimal lambda it will be calculated.
 """
 # NB "cmi" stands for conditional mutual information
-function get_shrinkage_cmi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, base=2, lambda=false)
-	entropyZ = get_shrinkage_entropy(valuesZ, base, lambda)
-	entropyXZ = get_shrinkage_entropy(valuesX, valuesZ, base, lambda)
-	entropyYZ = get_shrinkage_entropy(valuesY, valuesZ, base, lambda)
-	entropyXYZ = get_shrinkage_entropy(valuesX, valuesY, valuesZ, base, lambda)
+function get_shrinkage_cmi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, options=Dict())
+	entropyZ = get_shrinkage_entropy(valuesZ, options)
+	entropyXZ = get_shrinkage_entropy(valuesX, valuesZ, options)
+	entropyYZ = get_shrinkage_entropy(valuesY, valuesZ, options)
+	entropyXYZ = get_shrinkage_entropy(valuesX, valuesY, valuesZ, options)
 	return applyconditionalmutualinformationformula(entropyZ, entropyXZ, entropyYZ, entropyXYZ)
 end

@@ -1,6 +1,6 @@
 # Functions for performing shrinkage
 
-function getprobabilitiesshrinkage(frequencies::Array{Int}, lambda::Bool)
+function getprobabilitiesshrinkage(frequencies::Array{Int}, lambda::Void)
 	function getlambda(n::Int, normalizedvalues, target)
 		# Unbiased estimator of variance of u
 		varu = normalizedvalues .* (1 - normalizedvalues) / (n - 1)
@@ -20,7 +20,7 @@ function getprobabilitiesshrinkage(frequencies::Array{Int}, lambda::Bool)
 	
 	return lambda * target + (1 - lambda) * normalizedvalues
 end
-function getprobabilitiesshrinkage(frequencies::Array{Int}, lambda::Number)
+function getprobabilitiesshrinkage(frequencies::Array{Int}, lambda::Real)
 	target = 1 / length(frequencies) # Target is uniform distribution
 	n = sum(frequencies)
 	normalizedcounts = frequencies / n
