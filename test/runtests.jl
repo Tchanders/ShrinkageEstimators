@@ -17,7 +17,6 @@ arrZ = rand(1, 10000)
 
 # Check entropy is roughly log_base(b) for uniform distribution with b bins
 @test_approx_eq_eps get_shrinkage_entropy(arr) log2(b) 0.5
-println(get_shrinkage_entropy(arr) - log2(b))
 println("Entropy passed")
 
 # Check change of base works

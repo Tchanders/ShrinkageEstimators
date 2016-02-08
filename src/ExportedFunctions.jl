@@ -13,7 +13,7 @@ function getoptions(options::Dict)
 	return (
 		haskey(options, "base") ? options["base"] : 2,
 		haskey(options, "lambda") ? options["lambda"] : nothing,
-		haskey(options, "uniformwidth") ? options["uniformwidth"] : true
+		haskey(options, "mode") ? options["mode"] : "uniformwidth" #TODO: change to bayesianblocks
 	)
 end
 
@@ -42,18 +42,18 @@ the number of dimensions and n is the number of values.
 inclusive. If omitted, the optimal lambda it will be calculated.
 """
 function get_shrinkage_entropy(valuesX::Array{Float64,2}, options=Dict())
-	base, lambda, uniformwidth = getoptions(options)
-	probabilities = getprobabilitiesshrinkage(getfrequencies(valuesX, uniformwidth), lambda)
+	base, lambda, mode = getoptions(options)
+	probabilities = getprobabilitiesshrinkage(getfrequencies(valuesX, mode), lambda)
 	return applyentropyformula(probabilities, base)
 end
 function get_shrinkage_entropy(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, options=Dict())
-	base, lambda, uniformwidth = getoptions(options)
-	jointprobabilities = getprobabilitiesshrinkage(getjointfrequencies(valuesX, valuesY, uniformwidth), lambda)
+	base, lambda, mode = getoptions(options)
+	jointprobabilities = getprobabilitiesshrinkage(getjointfrequencies(valuesX, valuesY, mode), lambda)
 	return applyentropyformula(jointprobabilities, base)
 end
 function get_shrinkage_entropy(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, options=Dict())
-	base, lambda, uniformwidth = getoptions(options)
-	jointprobabilities = getprobabilitiesshrinkage(getjointfrequencies(valuesX, valuesY, valuesZ, uniformwidth), lambda)
+	base, lambda, mode = getoptions(options)
+	jointprobabilities = getprobabilitiesshrinkage(getjointfrequencies(valuesX, valuesY, valuesZ, mode), lambda)
 	return applyentropyformula(jointprobabilities, base)
 end
 
