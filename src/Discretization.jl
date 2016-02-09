@@ -1,6 +1,9 @@
 # Functions for performing discretization
 
 using Discretizers
+using PyCall
+
+@pyimport astroML.density_estimation as de
 
 function getfrequencies(values::Array{Float64,2}, mode)
 	binids, numberofbins = getbinids(values, mode)
@@ -13,9 +16,9 @@ end
 
 function getjointfrequencies(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, mode)
 	n = size(valuesX)[2]
-	binidsX, numberofbins = getbinids(valuesX, mode)
-	binidsY = getbinids(valuesY, mode)[1]
-	frequencies = zeros(Int, (numberofbins, numberofbins))
+	binidsX, numberofbinsX = getbinids(valuesX, mode)
+	binidsY, numberofbinsY = getbinids(valuesY, mode)
+	frequencies = zeros(Int, (numberofbinsY, numberofbinsX))
 	for i in 1:n
 		frequencies[binidsY[i], binidsX[i]] += 1
 	end
@@ -40,20 +43,34 @@ function getbinids(values::Array{Float64,2}, mode)
 		return round(Int, sqrt(size(values)[2]))
 	end
 
-	numberofbins = getnumberofbins(values)
+	numberofbins = 0 # So can be accessed outside the loops
 	numberofdimensions, n = size(values)
 	binids = zeros(Int, size(values))
 	for i in 1:numberofdimensions
 		# If values are all the same, assign them all to bin 1
 		min, max = extrema(values)
 		if min == max
+			numberofbins += 1
 			binids[i:i, 1:end] += convert(Array{Int}, values) + 1
 		elseif mode == "uniformwidth"
-			numberofbins = getnumberofbins(values)
+			numberofbins += getnumberofbins(values)
 			binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(numberofbins), values)), values)
 		elseif mode == "uniformcount"
 			numberofbins = getnumberofbins(values)
 			binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformCount(numberofbins), reshape(values, length(values)))), values)
+		elseif mode == "bayesianblocks"
+			edges = de.bayesian_blocks(reshape(values, length(values)))
+			binsizes = de.histogram(values, edges)[1]
+			binsizes = length(binsizes) == 0 ? [n] : binsizes
+			# The highest index in the current bin
+			highestindex = 0
+			# j is the index of the current bin
+			for j in 1:length(binsizes)
+				highestindex += binsizes[j]
+				binids[i:i, 1:highestindex] += 1
+			end
+			numberofbins = length(edges) - 1 <= 1 ? 1 : length(edges) - 1
+		# TODO: Handle "mode doesn't exist" error
 		end
 	end
 	return binids, numberofbins

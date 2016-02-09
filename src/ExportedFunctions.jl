@@ -4,7 +4,8 @@
 # Add tests for the sensibleness of mi and cmi
 # Offer alternative target
 # Look into standardising the documentation
-# Offer alternative discretisation methods
+# Implement (or find implementation of) Bayesian blocks in Julia,
+# 	to not be dependent on the Python module
 
 export get_shrinkage_entropy, get_shrinkage_mi, get_shrinkage_cmi
 
@@ -13,7 +14,7 @@ function getoptions(options::Dict)
 	return (
 		haskey(options, "base") ? options["base"] : 2,
 		haskey(options, "lambda") ? options["lambda"] : nothing,
-		haskey(options, "mode") ? options["mode"] : "uniformwidth" #TODO: change to bayesianblocks
+		haskey(options, "mode") ? options["mode"] : "uniformwidth"
 	)
 end
 
@@ -36,10 +37,13 @@ the number of dimensions and n is the number of values.
 [valuesZ] - dxn Array{Float64,2} - The observed values, where d is
 the number of dimensions and n is the number of values.
 
-[base=2] - Int - The base of the logarithm (this determines the units).
-
-[lambda=false] - Int - The shrinkage intensity, between 0 and 1
-inclusive. If omitted, the optimal lambda it will be calculated.
+[options=Dict("base" => 2, "lambda" => nothing, "mode" => "uniformwidth")]
+- Dict - A dictionary of the following options:
+	"base":		the base of the logarithm, which determines the units
+	"lambda":	the shrinkage intensity, between 0 and 1 inclusive, which
+				will be calculated if this value is not given
+	"mode":		the discretization mode: "uniformwidth", "uniformcount" or
+				"bayesianblocks"
 """
 function get_shrinkage_entropy(valuesX::Array{Float64,2}, options=Dict())
 	base, lambda, mode = getoptions(options)
@@ -69,10 +73,13 @@ the number of dimensions and n is the number of values.
 valuesY - dxn Array{Float64,2} - Another set of observed values, where
 d is the number of dimensions and n is the number of values.
 
-[base=2] - Int - The base of the logarithm (this determines the units).
-
-[lambda=false] - Int - The shrinkage intensity, between 0 and 1
-inclusive. If omitted, the optimal lambda it will be calculated.
+[options=Dict("base" => 2, "lambda" => nothing, "mode" => "uniformwidth")]
+- Dict - A dictionary of the following options:
+	"base":		the base of the logarithm, which determines the units
+	"lambda":	the shrinkage intensity, between 0 and 1 inclusive, which
+				will be calculated if this value is not given
+	"mode":		the discretization mode: "uniformwidth", "uniformcount" or
+				"bayesianblocks"
 """
 # NB "mi" stands for mutual information
 function get_shrinkage_mi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, options=Dict())
@@ -99,10 +106,13 @@ valuesZ - dxn Array{Float64,2} - The set of observed values, that will
 be conditioned on, where d is the number of dimensions and n is the
 number of values.
 
-[base=2] - Int - The base of the logarithm (this determines the units).
-
-[lambda=false] - Int - The shrinkage intensity, between 0 and 1
-inclusive. If omitted, the optimal lambda it will be calculated.
+[options=Dict("base" => 2, "lambda" => nothing, "mode" => "uniformwidth")]
+- Dict - A dictionary of the following options:
+	"base":		the base of the logarithm, which determines the units
+	"lambda":	the shrinkage intensity, between 0 and 1 inclusive, which
+				will be calculated if this value is not given
+	"mode":		the discretization mode: "uniformwidth", "uniformcount" or
+				"bayesianblocks"
 """
 # NB "cmi" stands for conditional mutual information
 function get_shrinkage_cmi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, options=Dict())

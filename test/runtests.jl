@@ -27,9 +27,11 @@ println("Entropy with change of base passed")
 @test_approx_eq_eps get_shrinkage_entropy(arr, Dict("lambda" => 0)) log2(b) 0.5
 println("Entropy with with lambda 0 passed")
 
-# Check uniform count discretization works
-@test_approx_eq_eps get_shrinkage_entropy(arr, Dict("uniformwidth" => false)) log2(b) 0.5
+# Check uniform width discretization works
+@test_approx_eq_eps get_shrinkage_entropy(arr, Dict("mode" => "uniformcount")) log2(b) 0.5
 println("Entropy with with uniform count passed")
+
+# TODO: Work out how to test "bayesianblocks" mode
 
 # Check joint entropy between multiple identical distributions is roughly
 # the same as entropy for one of them
