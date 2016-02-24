@@ -1,9 +1,9 @@
 # Functions for performing discretization
 
 using Discretizers
-using PyCall
+# using PyCall
 
-@pyimport astroML.density_estimation as de
+# @pyimport astroML.density_estimation as de
 
 function getfrequencies(values::Array{Float64,2}, mode)
 	binids, numberofbins = getbinids(values, mode)
@@ -59,17 +59,17 @@ function getbinids(values::Array{Float64,2}, mode)
 			numberofbins = getnumberofbins(values)
 			binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformCount(numberofbins), reshape(values, length(values)))), values)
 		elseif mode == "bayesianblocks"
-			edges = de.bayesian_blocks(reshape(values, length(values)))
-			binsizes = de.histogram(values, edges)[1]
-			binsizes = length(binsizes) == 0 ? [n] : binsizes
-			# The highest index in the current bin
-			highestindex = 0
-			# j is the index of the current bin
-			for j in 1:length(binsizes)
-				highestindex += binsizes[j]
-				binids[i:i, 1:highestindex] += 1
-			end
-			numberofbins = length(edges) - 1 <= 1 ? 1 : length(edges) - 1
+			# edges = de.bayesian_blocks(reshape(values, length(values)))
+			# binsizes = de.histogram(values, edges)[1]
+			# binsizes = length(binsizes) == 0 ? [n] : binsizes
+			# # The highest index in the current bin
+			# highestindex = 0
+			# # j is the index of the current bin
+			# for j in 1:length(binsizes)
+			# 	highestindex += binsizes[j]
+			# 	binids[i:i, 1:highestindex] += 1
+			# end
+			# numberofbins = length(edges) - 1 <= 1 ? 1 : length(edges) - 1
 		# TODO: Handle "mode doesn't exist" error
 		end
 	end
