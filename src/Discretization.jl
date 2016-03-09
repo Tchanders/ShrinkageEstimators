@@ -7,7 +7,7 @@ using Discretizers
 
 function getfrequencies(values::Array{Float64,2}, mode)
 	binids, numberofbins = getbinids(values, mode)
-	frequencies = zeros(Int, (1, numberofbins))
+	frequencies = zeros(Int, (numberofbins, 1))
 	for binid in binids
 		frequencies[binid] += 1
 	end
@@ -15,7 +15,7 @@ function getfrequencies(values::Array{Float64,2}, mode)
 end
 
 function getjointfrequencies(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, mode)
-	n = size(valuesX)[2]
+	n = size(valuesX)[1]
 	binidsX, numberofbinsX = getbinids(valuesX, mode)
 	binidsY, numberofbinsY = getbinids(valuesY, mode)
 	frequencies = zeros(Int, (numberofbinsY, numberofbinsX))
@@ -25,7 +25,7 @@ function getjointfrequencies(valuesX::Array{Float64,2}, valuesY::Array{Float64,2
 	return frequencies
 end
 function getjointfrequencies(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, mode)
-	n = size(valuesX)[2]
+	n = size(valuesX)[1]
 	binidsX, numberofbins = getbinids(valuesX, mode)
 	binidsY = getbinids(valuesY, mode)[1]
 	binidsZ = getbinids(valuesZ, mode)[1]
@@ -39,31 +39,31 @@ end
 function getbinids(values::Array{Float64,2}, mode)
 	# This is a separate function because might want to offer different methods in the future
 	function getnumberofbins(values)
-		# size(values)[2] is n
-		return round(Int, sqrt(size(values)[2]))
+		# size(values)[1] is n
+		return round(Int, sqrt(size(values)[1]))
 	end
 
 	numberofbins = 0 # So can be accessed outside the loops
-	numberofdimensions, n = size(values)
+	n, numberofdimensions = size(values)
 	binids = zeros(Int, size(values))
 	for i in 1:numberofdimensions
 		# If values are all the same, assign them all to bin 1
 		min, max = extrema(values)
 		if min == max
 			numberofbins += 1
-			binids[i:i, 1:end] += convert(Array{Int}, values) + 1
+			binids[:, i:i] += convert(Array{Int}, values) + 1
 		elseif mode == "uniformwidth"
 			numberofbins += getnumberofbins(values)
-			binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(numberofbins), values)), values)
+			binids[:, i:i] += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(numberofbins), values)), values)
 		elseif mode == "uniformwidth2"
 			numberofbins += getnumberofbins(values) * 2
-			binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(numberofbins), values)), values)
+			binids[:, i:i] += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(numberofbins), values)), values)
 		elseif mode == "uniformcount"
 			numberofbins = getnumberofbins(values)
 			try
-				binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformCount(numberofbins), reshape(values, length(values)))), values)
+				binids[:, i:i] += encode(LinearDiscretizer(binedges(DiscretizeUniformCount(numberofbins), reshape(values, length(values)))), values)
 			catch
-				binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(numberofbins), values)), values)
+				binids[:, i:i] += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(numberofbins), values)), values)
 			end
 		elseif mode == "bayesianblocks"
 			# edges = de.bayesian_blocks(reshape(values, length(values)))

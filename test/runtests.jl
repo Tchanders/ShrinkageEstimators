@@ -5,10 +5,10 @@ d = 1
 n = 10000
 b = sqrt(n) # getfrequencies function uses sqrt(n) bins
 
-arr = rand(d, n)
+arr = rand(n, d)
 arrX = arr
-arrY = rand(1, 10000)
-arrZ = rand(1, 10000)
+arrY = rand(10000, 1)
+arrZ = rand(10000, 1)
 
 # Since the estimator is only an estimator, the tests are only approximate.
 # In general a tolerance of 0.5 is used, which is relatively large. This
