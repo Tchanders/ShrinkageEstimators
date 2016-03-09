@@ -11,3 +11,7 @@ end
 function applyconditionalmutualinformationformula(entropyZ, entropyXZ, entropyYZ, entropyXYZ)
 	return entropyXZ + entropyYZ - entropyXYZ - entropyZ
 end
+
+function applytotalcorrelationformula(entropyX, entropyY, entropyZ, entropyXYZ)
+	return entropyX + entropyY + entropyZ - entropyXYZ
+end

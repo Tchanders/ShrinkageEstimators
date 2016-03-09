@@ -7,7 +7,7 @@
 # Implement (or find implementation of) Bayesian blocks in Julia,
 # 	to not be dependent on the Python module
 
-export get_shrinkage_entropy, get_shrinkage_mi, get_shrinkage_cmi
+export get_shrinkage_entropy, get_shrinkage_mi, get_shrinkage_cmi, get_shrinkage_total_correlation
 
 # Utility function for setting or overriding default options
 function getoptions(options::Dict)
@@ -121,4 +121,12 @@ function get_shrinkage_cmi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2},
 	entropyYZ = get_shrinkage_entropy(valuesY, valuesZ, options)
 	entropyXYZ = get_shrinkage_entropy(valuesX, valuesY, valuesZ, options)
 	return applyconditionalmutualinformationformula(entropyZ, entropyXZ, entropyYZ, entropyXYZ)
+end
+
+function get_shrinkage_total_correlation(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, options=Dict())
+	entropyX = get_shrinkage_entropy(valuesX, options)
+	entropyY = get_shrinkage_entropy(valuesY, options)
+	entropyZ = get_shrinkage_entropy(valuesZ, options)
+	entropyXYZ = get_shrinkage_entropy(valuesX, valuesY, valuesZ, options)
+	return applytotalcorrelationformula(entropyX, entropyY, entropyZ, entropyXYZ)
 end
