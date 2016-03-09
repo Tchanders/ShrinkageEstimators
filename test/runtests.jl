@@ -20,15 +20,15 @@ arrZ = rand(1, 10000)
 println("Entropy passed")
 
 # Check change of base works
-@test_approx_eq_eps get_shrinkage_entropy(arr, Dict("base" => e)) log(b) 0.5
+@test_approx_eq_eps get_shrinkage_entropy(arr, base=e) log(b) 0.5
 println("Entropy with change of base passed")
 
 # Check specifying lambda works
-@test_approx_eq_eps get_shrinkage_entropy(arr, Dict("lambda" => 0)) log2(b) 0.5
+@test_approx_eq_eps get_shrinkage_entropy(arr, lambda=0) log2(b) 0.5
 println("Entropy with with lambda 0 passed")
 
 # Check uniform width discretization works
-@test_approx_eq_eps get_shrinkage_entropy(arr, Dict("mode" => "uniformcount")) log2(b) 0.5
+@test_approx_eq_eps get_shrinkage_entropy(arr, mode="uniformcount") log2(b) 0.5
 println("Entropy with with uniform count passed")
 
 # TODO: Work out how to test "bayesianblocks" mode

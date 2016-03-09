@@ -9,15 +9,6 @@
 
 export get_shrinkage_entropy, get_shrinkage_mi, get_shrinkage_cmi, get_shrinkage_total_correlation
 
-# Utility function for setting or overriding default options
-function getoptions(options::Dict)
-	return (
-		haskey(options, "base") ? options["base"] : 2,
-		haskey(options, "lambda") ? options["lambda"] : nothing,
-		haskey(options, "mode") ? options["mode"] : "uniformwidth"
-	)
-end
-
 """
 Calculates a James-Stein shrinkage estimate for the entropy of a set
 of observed values, via the following steps:
@@ -37,26 +28,23 @@ the number of dimensions and n is the number of values.
 [valuesZ] - dxn Array{Float64,2} - The observed values, where d is
 the number of dimensions and n is the number of values.
 
-[options=Dict("base" => 2, "lambda" => nothing, "mode" => "uniformwidth")]
-- Dict - A dictionary of the following options:
-	"base":		the base of the logarithm, which determines the units
-	"lambda":	the shrinkage intensity, between 0 and 1 inclusive, which
-				will be calculated if this value is not given
-	"mode":		the discretization mode: "uniformwidth", "uniformcount" or
-				"bayesianblocks"
+Keyword arguments:
+
+[base=2] - the base of the logarithm, which determines the units
+[lambda=nothing] - the shrinkage intensity, between 0 and 1 inclusive, which
+		will be calculated if this value is not given
+[mode="uniformwidth"] - the discretization mode: "uniformwidth", "uniformcount" or
+		"bayesianblocks"
 """
-function get_shrinkage_entropy(valuesX::Array{Float64,2}, options=Dict())
-	base, lambda, mode = getoptions(options)
+function get_shrinkage_entropy(valuesX::Array{Float64,2}; base=2, lambda=nothing, mode="uniformwidth")
 	probabilities = getprobabilitiesshrinkage(getfrequencies(valuesX, mode), lambda)
 	return applyentropyformula(probabilities, base)
 end
-function get_shrinkage_entropy(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, options=Dict())
-	base, lambda, mode = getoptions(options)
+function get_shrinkage_entropy(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}; base=2, lambda=nothing, mode="uniformwidth")
 	jointprobabilities = getprobabilitiesshrinkage(getjointfrequencies(valuesX, valuesY, mode), lambda)
 	return applyentropyformula(jointprobabilities, base)
 end
-function get_shrinkage_entropy(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, options=Dict())
-	base, lambda, mode = getoptions(options)
+function get_shrinkage_entropy(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}; base=2, lambda=nothing, mode="uniformwidth")
 	jointprobabilities = getprobabilitiesshrinkage(getjointfrequencies(valuesX, valuesY, valuesZ, mode), lambda)
 	return applyentropyformula(jointprobabilities, base)
 end
@@ -73,19 +61,19 @@ the number of dimensions and n is the number of values.
 valuesY - dxn Array{Float64,2} - Another set of observed values, where
 d is the number of dimensions and n is the number of values.
 
-[options=Dict("base" => 2, "lambda" => nothing, "mode" => "uniformwidth")]
-- Dict - A dictionary of the following options:
-	"base":		the base of the logarithm, which determines the units
-	"lambda":	the shrinkage intensity, between 0 and 1 inclusive, which
-				will be calculated if this value is not given
-	"mode":		the discretization mode: "uniformwidth", "uniformcount" or
-				"bayesianblocks"
+Keyword arguments:
+
+[base=2] - the base of the logarithm, which determines the units
+[lambda=nothing] - the shrinkage intensity, between 0 and 1 inclusive, which
+		will be calculated if this value is not given
+[mode="uniformwidth"] - the discretization mode: "uniformwidth", "uniformcount" or
+		"bayesianblocks"
 """
 # NB "mi" stands for mutual information
-function get_shrinkage_mi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, options=Dict())
-	entropyX = get_shrinkage_entropy(valuesX, options)
-	entropyY = get_shrinkage_entropy(valuesY, options)
-	entropyXY = get_shrinkage_entropy(valuesX, valuesY, options)
+function get_shrinkage_mi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}; base=2, lambda=nothing, mode="uniformwidth")
+	entropyX = get_shrinkage_entropy(valuesX, base=base, lambda=lambda, mode=mode)
+	entropyY = get_shrinkage_entropy(valuesY, base=base, lambda=lambda, mode=mode)
+	entropyXY = get_shrinkage_entropy(valuesX, valuesY, base=base, lambda=lambda, mode=mode)
 	return applymutualinformationformula(entropyX, entropyY, entropyXY)
 end
 
@@ -106,27 +94,27 @@ valuesZ - dxn Array{Float64,2} - The set of observed values, that will
 be conditioned on, where d is the number of dimensions and n is the
 number of values.
 
-[options=Dict("base" => 2, "lambda" => nothing, "mode" => "uniformwidth")]
-- Dict - A dictionary of the following options:
-	"base":		the base of the logarithm, which determines the units
-	"lambda":	the shrinkage intensity, between 0 and 1 inclusive, which
-				will be calculated if this value is not given
-	"mode":		the discretization mode: "uniformwidth", "uniformcount" or
-				"bayesianblocks"
+Keyword arguments:
+
+[base=2] - the base of the logarithm, which determines the units
+[lambda=nothing] - the shrinkage intensity, between 0 and 1 inclusive, which
+		will be calculated if this value is not given
+[mode="uniformwidth"] - the discretization mode: "uniformwidth", "uniformcount" or
+		"bayesianblocks"
 """
 # NB "cmi" stands for conditional mutual information
-function get_shrinkage_cmi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, options=Dict())
-	entropyZ = get_shrinkage_entropy(valuesZ, options)
-	entropyXZ = get_shrinkage_entropy(valuesX, valuesZ, options)
-	entropyYZ = get_shrinkage_entropy(valuesY, valuesZ, options)
-	entropyXYZ = get_shrinkage_entropy(valuesX, valuesY, valuesZ, options)
+function get_shrinkage_cmi(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}; base=2, lambda=nothing, mode="uniformwidth")
+	entropyZ = get_shrinkage_entropy(valuesZ, base=base, lambda=lambda, mode=mode)
+	entropyXZ = get_shrinkage_entropy(valuesX, valuesZ, base=base, lambda=lambda, mode=mode)
+	entropyYZ = get_shrinkage_entropy(valuesY, valuesZ, base=base, lambda=lambda, mode=mode)
+	entropyXYZ = get_shrinkage_entropy(valuesX, valuesY, valuesZ, base=base, lambda=lambda, mode=mode)
 	return applyconditionalmutualinformationformula(entropyZ, entropyXZ, entropyYZ, entropyXYZ)
 end
 
-function get_shrinkage_total_correlation(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}, options=Dict())
-	entropyX = get_shrinkage_entropy(valuesX, options)
-	entropyY = get_shrinkage_entropy(valuesY, options)
-	entropyZ = get_shrinkage_entropy(valuesZ, options)
-	entropyXYZ = get_shrinkage_entropy(valuesX, valuesY, valuesZ, options)
+function get_shrinkage_total_correlation(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, valuesZ::Array{Float64,2}; base=2, lambda=nothing, mode="uniformwidth")
+	entropyX = get_shrinkage_entropy(valuesX, base=base, lambda=lambda, mode=mode)
+	entropyY = get_shrinkage_entropy(valuesY, base=base, lambda=lambda, mode=mode)
+	entropyZ = get_shrinkage_entropy(valuesZ, base=base, lambda=lambda, mode=mode)
+	entropyXYZ = get_shrinkage_entropy(valuesX, valuesY, valuesZ, base=base, lambda=lambda, mode=mode)
 	return applytotalcorrelationformula(entropyX, entropyY, entropyZ, entropyXYZ)
 end

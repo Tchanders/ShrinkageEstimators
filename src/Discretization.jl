@@ -55,9 +55,16 @@ function getbinids(values::Array{Float64,2}, mode)
 		elseif mode == "uniformwidth"
 			numberofbins += getnumberofbins(values)
 			binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(numberofbins), values)), values)
+		elseif mode == "uniformwidth2"
+			numberofbins += getnumberofbins(values) * 2
+			binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(numberofbins), values)), values)
 		elseif mode == "uniformcount"
 			numberofbins = getnumberofbins(values)
-			binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformCount(numberofbins), reshape(values, length(values)))), values)
+			try
+				binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformCount(numberofbins), reshape(values, length(values)))), values)
+			catch
+				binids[i:i, 1:end] += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(numberofbins), values)), values)
+			end
 		elseif mode == "bayesianblocks"
 			# edges = de.bayesian_blocks(reshape(values, length(values)))
 			# binsizes = de.histogram(values, edges)[1]
